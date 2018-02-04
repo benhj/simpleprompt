@@ -1,5 +1,6 @@
 #pragma once
 
+#include <deque>
 #include <functional>
 #include <iostream>
 #include <string>
@@ -7,6 +8,13 @@
 
 #include <termios.h>
 #include <unistd.h>
+
+#define SP_UP_ARROW 65
+#define SP_CTRL_C 3
+#define SP_ENTER 10
+#define SP_BACKSPACE 127
+#define SP_DELETE 8
+#define SP_TAB 9
 
 namespace simpleprompt {
     class SimplePrompt
@@ -21,6 +29,7 @@ namespace simpleprompt {
           , m_welcomeMessage(welcomeMessage)
           , m_prompt(prompt)
           , m_commands()
+          , m_history()
         {
         }
 
@@ -52,6 +61,11 @@ namespace simpleprompt {
 
         /// Command dictionary
         std::vector<std::string> m_commands;
+
+        /// Remember previously entered commands
+        std::deque<std::string> m_history;
+
+        std::deque<std::string>::reverse_iterator m_prev;
 
         void setupTerminal()
         {
@@ -141,6 +155,38 @@ namespace simpleprompt {
             std::cout<<toReturn;
         }
 
+        /// When up cursor is pressed
+        void handleHistory(int &cursorPos,
+                           std::string &toReturn)
+        {
+            if(!m_history.empty() && m_prev != m_history.rend()) {
+
+                if(!toReturn.empty()) {
+                    auto lenBefore = toReturn.length();
+                    for(int i = 0;i < lenBefore; ++i) {
+                        removeLastChar();
+                    }
+                }
+                toReturn = *m_prev;
+                cursorPos = toReturn.length();
+                std::cout<<toReturn;
+                ++m_prev;
+            }
+        }
+
+        /// Arrows designated by 27, 91 and then one of {65, 66, 67, 68}
+        int checkArrowCode(int const code)
+        {
+            if(code == 27) {
+                auto following = static_cast<int>(::getchar());
+                if(following == 91) {
+                    auto final = static_cast<int>(::getchar());
+                    return final;
+                }
+            }
+            return -1;
+        }
+
         /// gets a user-inputted string until return is entered
         /// will use getChar to process characters one by one so that individual
         /// key handlers can be created
@@ -150,26 +196,39 @@ namespace simpleprompt {
 
             int cursorPos(0);
             while(1) {
-                char c = getchar();
+                char c = ::getchar();
                 auto intCode = static_cast<int>(c);
-                if(intCode == 10) { // enter
-                    std::cout<<std::endl;
+                auto onEnter = false;
+                switch(intCode) {
+                    case SP_ENTER:
+                      std::cout<<std::endl;
+                      onEnter = true;
+                      break;  
+                    case SP_CTRL_C:
+                      exit(0);
+                    case SP_BACKSPACE:
+                    case SP_DELETE:
+                      handleBackspace(cursorPos, toReturn);
+                      break;
+                    case SP_TAB:
+                      handleTabKey(cursorPos, toReturn);
+                      break;
+                    default:
+                      {
+                          auto const ac = checkArrowCode(intCode);
+                          if(ac == SP_UP_ARROW) {
+                              handleHistory(cursorPos, toReturn);
+                          } else if(ac > -1) {
+                              continue; // (i.e., ignore)
+                          } else {
+                              std::cout<<c;
+                              ++cursorPos;
+                              toReturn.push_back(c);
+                          }
+                      }
+                }
+                if(onEnter) {
                     break;
-                } else if(c == 3) { // ctrl-c, I think
-                    exit(0);
-                } else if(intCode == 65 || intCode == 66 ||
-                   intCode == 67 || intCode == 68) { // arrow keys 
-                    continue; // (i.e., ignore)
-                } else if(intCode == 127 || intCode == 8) { // delete / backspace
-                    handleBackspace(cursorPos, toReturn);
-                } else if(intCode == 9) { // tab
-
-                    handleTabKey(cursorPos, toReturn);
-
-                } else { // print out char to screen and push into string vector
-                    std::cout<<c;
-                    ++cursorPos;
-                    toReturn.push_back(c);
                 }
             }
             return toReturn;
@@ -178,10 +237,16 @@ namespace simpleprompt {
         /// indefinitely loops over user input
         void loop()
         {
-            std::string currentPath("/");
             while (1) {
                 std::cout<<m_prompt;
-                auto commandStr = getInputString();
+                auto const commandStr = getInputString();
+                if(!commandStr.empty()) {
+                    if(m_comCallback) {
+                        m_comCallback(commandStr);
+                    }
+                    m_history.push_back(commandStr);
+                    m_prev = m_history.rbegin();
+                }
             }
         }
     };
