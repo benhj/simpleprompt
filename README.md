@@ -1,2 +1,2 @@
 # simpleprompt
-A generic posix command prompt
+A Hacky As Fuck<sup>TM</sup> generic posix command prompt.
