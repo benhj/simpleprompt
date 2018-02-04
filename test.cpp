@@ -2,9 +2,9 @@
 
 int main()
 {
-	simpleprompt::SimplePrompt sp("",[](std::string const&){});
-	sp.addCommand("remove");
-	sp.addCommand("mkdir");
-	sp.start();
-	return 0;
+    simpleprompt::SimplePrompt sp("",[](std::string const&){});
+    sp.addCommand("remove");
+    sp.addCommand("mkdir");
+    sp.start();
+    return 0;
 }

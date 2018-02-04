@@ -1,3 +1,9 @@
+// This 'ere software is hacky as fuck. Use at your peril.
+// I'd appreciate a mention if you do. But if you don't,
+// I'm not going to lose sleep over it.
+//
+// Ben H.D. Jones in the year of 2018
+
 #pragma once
 
 #include <deque>
