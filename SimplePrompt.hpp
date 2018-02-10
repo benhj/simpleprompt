@@ -262,9 +262,11 @@ namespace simpleprompt {
                           } else if(ac > -1) {
                               continue; // (i.e., ignore)
                           } else {
-                              std::cout<<c;
-                              ++cursorPos;
-                              toReturn.push_back(c);
+                              if(intCode > 28) {
+                                  std::cout<<c;
+                                  ++cursorPos;
+                                  toReturn.push_back(c);
+                              }
                           }
                       }
                 }
