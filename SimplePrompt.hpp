@@ -170,7 +170,8 @@ namespace simpleprompt {
 
             if(!m_history.empty()) {
                 if(up) {
-                    if (m_prev != m_history.rend()) {
+                    if (m_prev != m_history.rend()) 
+                    {
                         if(!toReturn.empty()) {
                             auto lenBefore = toReturn.length();
                             for(int i = 0;i < lenBefore; ++i) {
@@ -180,11 +181,18 @@ namespace simpleprompt {
                         toReturn = *m_prev;
                         cursorPos = toReturn.length();
                         std::cout<<toReturn;
-                        ++m_prev;
+
+                        // Boundary condition
+                        if(m_prev < m_history.rend()-1) {
+                            ++m_prev;
+                        }
+
                     }
                 } else {
-                    if(m_prev != m_history.rbegin()) {
+                    if(m_prev != m_history.rbegin()) 
+                    {
                         --m_prev;
+
                         if(!toReturn.empty()) {
                             auto lenBefore = toReturn.length();
                             for(int i = 0;i < lenBefore; ++i) {
@@ -194,6 +202,12 @@ namespace simpleprompt {
                         toReturn = *m_prev;
                         cursorPos = toReturn.length();
                         std::cout<<toReturn;
+
+                        // Boundary condition
+                        if(m_prev == m_history.rbegin()) {
+                            ++m_prev;
+                        }
+                        
                     }
                 }
             }
