@@ -1,8 +1,9 @@
-# simpleprompt
-A Hacky As Fuck<sup>TM</sup> generic posix command prompt. Use this when you need
-some kind of command-line interface (e.g., an interactive programming language
-might be an example use-case).
+# The Hacky As Fuck<sup>TM</sup> Command Prompt
+A generic posix command prompt. Use this when your implementing something in
+C++ and you need some kind of command-line interface (e.g., an interactive 
+programming language would be an appropriate use-case).
 
+## Features
 * A header-only C++ posix implementation of a basic command prompt
 * With history and tab completion.
 * Just add a callback.
