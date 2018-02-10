@@ -262,6 +262,9 @@ namespace simpleprompt {
                           } else if(ac > -1) {
                               continue; // (i.e., ignore)
                           } else {
+                              // Codes <= 28 seem to correspond to
+                              // non-printable characters and are attained
+                              // by pressing ctrl-key
                               if(intCode > 28) {
                                   std::cout<<c;
                                   ++cursorPos;
