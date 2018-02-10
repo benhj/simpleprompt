@@ -16,6 +16,7 @@
 #include <unistd.h>
 
 #define SP_UP_ARROW 65
+#define SP_DOWN_ARROW 66
 #define SP_CTRL_C 3
 #define SP_ENTER 10
 #define SP_BACKSPACE 127
@@ -161,22 +162,40 @@ namespace simpleprompt {
             std::cout<<toReturn;
         }
 
-        /// When up cursor is pressed
+        /// When up or down cursor is pressed
         void handleHistory(int &cursorPos,
-                           std::string &toReturn)
+                           std::string &toReturn,
+                           bool const up = true /* cursor was up-pressed */)
         {
-            if(!m_history.empty() && m_prev != m_history.rend()) {
 
-                if(!toReturn.empty()) {
-                    auto lenBefore = toReturn.length();
-                    for(int i = 0;i < lenBefore; ++i) {
-                        removeLastChar();
+            if(!m_history.empty()) {
+                if(up) {
+                    if (m_prev != m_history.rend()) {
+                        if(!toReturn.empty()) {
+                            auto lenBefore = toReturn.length();
+                            for(int i = 0;i < lenBefore; ++i) {
+                                removeLastChar();
+                            }
+                        }
+                        toReturn = *m_prev;
+                        cursorPos = toReturn.length();
+                        std::cout<<toReturn;
+                        ++m_prev;
+                    }
+                } else {
+                    if(m_prev != m_history.rbegin()) {
+                        --m_prev;
+                        if(!toReturn.empty()) {
+                            auto lenBefore = toReturn.length();
+                            for(int i = 0;i < lenBefore; ++i) {
+                                removeLastChar();
+                            }
+                        }
+                        toReturn = *m_prev;
+                        cursorPos = toReturn.length();
+                        std::cout<<toReturn;
                     }
                 }
-                toReturn = *m_prev;
-                cursorPos = toReturn.length();
-                std::cout<<toReturn;
-                ++m_prev;
             }
         }
 
@@ -224,6 +243,8 @@ namespace simpleprompt {
                           auto const ac = checkArrowCode(intCode);
                           if(ac == SP_UP_ARROW) {
                               handleHistory(cursorPos, toReturn);
+                          } else if(ac == SP_DOWN_ARROW) {
+                              handleHistory(cursorPos, toReturn, false);
                           } else if(ac > -1) {
                               continue; // (i.e., ignore)
                           } else {
