@@ -1,4 +1,4 @@
-# The Hacky As Fuck<sup>TM</sup> Command Prompt
+# A Simple Command Prompt
 A generic posix command prompt. Use this when you're implementing something in
 C++ and you need some kind of command-line interface (e.g., an interactive 
 programming language would be an appropriate use-case).
