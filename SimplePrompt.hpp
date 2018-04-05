@@ -38,6 +38,10 @@ namespace simpleprompt {
           , m_commands()
           , m_history()
         {
+            if(!m_welcomeMessage.empty()) {
+                std::cout<<"\n\n"<<welcomeMessage<<std::endl;
+                std::cout<<"\n\n"<<std::endl;
+            }
         }
 
         void addCommand(std::string const & com)
