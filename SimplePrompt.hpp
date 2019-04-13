@@ -2,7 +2,7 @@
 // I'd appreciate a mention if you do. But if you don't,
 // I'm not going to lose sleep over it.
 //
-// Ben H.D. Jones in the year of 2018
+// Ben H.D. Jones in the year of 2018-2019
 
 #pragma once
 
@@ -60,6 +60,12 @@ namespace simpleprompt {
             loop();
         }
 
+        ~SimplePrompt()
+        {
+            // Revert terminal state
+            tcsetattr( STDIN_FILENO, TCSANOW, &m_oldt);
+        }
+
       private:
         /// An optional path to a file specifying a dictionary of commands.
         /// When empty, no path is specified.
@@ -82,31 +88,31 @@ namespace simpleprompt {
 
         std::deque<std::string>::reverse_iterator m_prev;
 
+        struct termios m_oldt, m_newt;
+
         void setupTerminal()
         {
-            static struct termios oldt, newt;
-
             // See http://stackoverflow.com/questions/1798511/how-to-avoid-press-enter-with-any-getchar
             // tcgetattr gets the parameters of the current terminal
             // STDIN_FILENO will tell tcgetattr that it should write the settings
-            // of stdin to oldt
+            // of stdin to m_oldt
 
-            tcgetattr( STDIN_FILENO, &oldt);
+            tcgetattr( STDIN_FILENO, &m_oldt);
             // now the settings will be copied
-            newt = oldt;
+            m_newt = m_oldt;
 
             // ICANON normally takes care that one line at a time will be processed
             // that means it will return if it sees a "\n" or an EOF or an EOL
-            newt.c_lflag &= ~(ICANON);
+            m_newt.c_lflag &= ~(ICANON);
 
             // also disable standard output -- Ben
-            newt.c_lflag &= ~ECHO;
-            newt.c_lflag |= ECHONL;
-            newt.c_lflag &= ICRNL;
+            m_newt.c_lflag &= ~ECHO;
+            m_newt.c_lflag |= ECHONL;
+            m_newt.c_lflag &= ICRNL;
 
             // Those new settings will be set to STDIN
             // TCSANOW tells tcsetattr to change attributes immediately.
-            tcsetattr( STDIN_FILENO, TCSANOW, &newt);
+            tcsetattr( STDIN_FILENO, TCSANOW, &m_newt);
         }
 
         void handleCharInsert(int &cursorPos, char const ch, std::string &toReturn)
