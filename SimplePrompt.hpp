@@ -108,6 +108,26 @@ namespace simpleprompt {
             tcsetattr( STDIN_FILENO, TCSANOW, &newt);
         }
 
+        void handleCharInsert(int &cursorPos, char const ch, std::string &toReturn)
+        {
+            // If anything was hacky as fuck, this is surely it.
+            std::cout<<ch;
+            if(!toReturn.empty()) {
+                std::string copy(std::begin(toReturn), std::begin(toReturn) + cursorPos);
+                copy.push_back(ch);
+                std::string remaining(std::begin(toReturn) + cursorPos, std::end(toReturn));
+                std::cout<<remaining<<" \b";
+                for(int i = 0; i < remaining.length(); ++i) {
+                    std::cout<<"\b";
+                }
+                copy.append(remaining);
+                copy.swap(toReturn);
+            } else {
+                toReturn.push_back(ch);
+            }
+            ++cursorPos;
+        }
+
         void removeLastChar()
         {
             // backspace which only moves cursor, so need to write a blank
@@ -307,9 +327,7 @@ namespace simpleprompt {
                               // non-printable characters and are attained
                               // by pressing ctrl-key
                               if(intCode > 28) {
-                                  std::cout<<c;
-                                  ++cursorPos;
-                                  toReturn.push_back(c);
+                                  handleCharInsert(cursorPos, c, toReturn);
                               }
                           }
                       }
