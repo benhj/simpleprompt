@@ -22,6 +22,7 @@
 #define SP_CTRL_C 3
 #define SP_CTRL_E 5
 #define SP_CTRL_A 1
+#define SP_CTRL_K 11
 #define SP_ENTER 10
 #define SP_BACKSPACE 127
 #define SP_DELETE 8
@@ -187,6 +188,23 @@ namespace simpleprompt {
             std::cout<<in;
         }
 
+        void handleCtrlK(int &cursorPos, std::string & in)
+        {
+            std::string copy(std::begin(in), std::begin(in) + cursorPos);
+            
+            // Remove from cursor to end of line
+            auto const dist = std::distance(std::begin(in) + cursorPos, std::end(in));
+            for(int i = 0; i < dist; ++i) {
+                std::cout<<" ";
+            }
+
+            // Put cursor back
+            for(int i = 0; i < dist; ++i) {
+                std::cout<<"\b";
+            }
+            in.swap(copy);
+        }
+
         void handleLeftArrow(int &cursorPos)
         {
             // check that the cursor position is > 0 to prevent accidental
@@ -333,6 +351,9 @@ namespace simpleprompt {
                       break;
                     case SP_CTRL_E:
                       handleCtrlE(cursorPos, toReturn);
+                      break;
+                    case SP_CTRL_K:
+                      handleCtrlK(cursorPos, toReturn);
                       break;
                     case SP_BACKSPACE:
                     case SP_DELETE:
