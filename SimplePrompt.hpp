@@ -125,8 +125,19 @@ namespace simpleprompt {
             if(cursorPos > 0) {
                 removeLastChar();
                 --cursorPos;
-                std::string copy(std::begin(toReturn), std::end(toReturn) - 1);
+                auto before = cursorPos;
+                std::string copy(std::begin(toReturn), std::begin(toReturn) + cursorPos);
+                std::string remaining(std::begin(toReturn) + cursorPos + 1, std::end(toReturn));
+                copy.append(remaining);
                 copy.swap(toReturn);
+
+                // Remove character from end and 'slide back' string
+                std::cout<<remaining<<" \b";
+
+                // Move cursor back to correct position
+                for(int i = 0; i < remaining.length(); ++i) {
+                    std::cout<<"\b";
+                }
             }
         }
 
