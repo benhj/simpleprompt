@@ -17,6 +17,8 @@
 
 #define SP_UP_ARROW 65
 #define SP_DOWN_ARROW 66
+#define SP_LEFT_ARROW 68
+#define SP_RIGHT_ARROW 67
 #define SP_CTRL_C 3
 #define SP_ENTER 10
 #define SP_BACKSPACE 127
@@ -125,6 +127,26 @@ namespace simpleprompt {
                 --cursorPos;
                 std::string copy(std::begin(toReturn), std::end(toReturn) - 1);
                 copy.swap(toReturn);
+            }
+        }
+
+        void handleLeftArrow(int &cursorPos)
+        {
+            // check that the cursor position is > 0 to prevent accidental
+            // deletion of prompt!
+            if(cursorPos > 0) {
+                --cursorPos;
+                std::cout<<"\b";
+            }
+        }
+
+        void handleRightArrow(int &cursorPos, std::string &toReturn)
+        {
+            // check that the cursor position is > 0 to prevent accidental
+            // deletion of prompt!
+            if(cursorPos < toReturn.length()) {
+                std::cout<<toReturn[cursorPos];
+                ++cursorPos;
             }
         }
 
@@ -263,7 +285,11 @@ namespace simpleprompt {
                               handleHistory(cursorPos, toReturn);
                           } else if(ac == SP_DOWN_ARROW) {
                               handleHistory(cursorPos, toReturn, false);
-                          } else if(ac > -1) {
+                          } else if(ac == SP_LEFT_ARROW) {
+                              handleLeftArrow(cursorPos);
+                          } else if(ac == SP_RIGHT_ARROW) {
+                              handleRightArrow(cursorPos, toReturn);
+                          }  else if(ac > -1) {
                               continue; // (i.e., ignore)
                           } else {
                               // Codes <= 28 seem to correspond to
