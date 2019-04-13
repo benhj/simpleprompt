@@ -20,6 +20,8 @@
 #define SP_LEFT_ARROW 68
 #define SP_RIGHT_ARROW 67
 #define SP_CTRL_C 3
+#define SP_CTRL_E 5
+#define SP_CTRL_A 1
 #define SP_ENTER 10
 #define SP_BACKSPACE 127
 #define SP_DELETE 8
@@ -158,6 +160,25 @@ namespace simpleprompt {
                     std::cout<<"\b";
                 }
             }
+        }
+
+        void handleCtrlA(int &cursorPos)
+        {
+            auto const pos = cursorPos;
+            for(int i = 0; i < pos; ++i) {
+                 --cursorPos;
+                std::cout<<"\b";
+            }
+        }
+
+        void handleCtrlE(int &cursorPos, std::string const & in)
+        {
+            handleCtrlA(cursorPos);
+
+            for(int i = 0; i < in.length(); ++i) {
+                 ++cursorPos;
+            }
+            std::cout<<in;
         }
 
         void handleLeftArrow(int &cursorPos)
@@ -301,6 +322,12 @@ namespace simpleprompt {
                       break;  
                     case SP_CTRL_C:
                       exit(0);
+                    case SP_CTRL_A:
+                      handleCtrlA(cursorPos);
+                      break;
+                    case SP_CTRL_E:
+                      handleCtrlE(cursorPos, toReturn);
+                      break;
                     case SP_BACKSPACE:
                     case SP_DELETE:
                       handleBackspace(cursorPos, toReturn);
