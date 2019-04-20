@@ -336,6 +336,19 @@ namespace simpleprompt {
             return -1;
         }
 
+        void prettyPrint(int & cursorPos, std::string const & toReturn)
+        {
+            auto remCursorPos = toReturn.length() - cursorPos;
+            handleCtrlE(cursorPos, toReturn);
+            for(int i = 0; i < toReturn.length(); ++i) {
+                std::cout<<"\b";
+            }
+            m_printer(toReturn);
+            for(int i = 0;i<remCursorPos; ++i) {
+                handleLeftArrow(cursorPos);
+            }
+        }
+
         /// gets a user-inputted string until return is entered
         /// will use getChar to process characters one by one so that individual
         /// key handlers can be created
@@ -367,6 +380,7 @@ namespace simpleprompt {
                     case SP_BACKSPACE:
                     case SP_DELETE:
                       handleBackspace(cursorPos, toReturn);
+                      prettyPrint(cursorPos, toReturn);
                       break;
                     case SP_TAB:
                       handleTabKey(cursorPos, toReturn);
@@ -392,15 +406,7 @@ namespace simpleprompt {
                                   handleCharInsert(cursorPos, c, toReturn);
                               }
                           }
-                          auto remCursorPos = toReturn.length() - cursorPos;
-                          handleCtrlE(cursorPos, toReturn);
-                          for(int i = 0; i < toReturn.length(); ++i) {
-                              std::cout<<"\b";
-                          }
-                          m_printer(toReturn);
-                          for(int i = 0;i<remCursorPos; ++i) {
-                              handleLeftArrow(cursorPos);
-                          }
+                          prettyPrint(cursorPos, toReturn);
                       }
                 }
                 if(onEnter) {
