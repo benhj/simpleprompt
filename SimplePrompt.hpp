@@ -390,16 +390,16 @@ namespace simpleprompt {
                               // by pressing ctrl-key
                               if(intCode > 28) {
                                   handleCharInsert(cursorPos, c, toReturn);
-                                  auto remCursorPos = toReturn.length() - cursorPos;
-                                  handleCtrlE(cursorPos, toReturn);
-                                  for(int i = 0; i < toReturn.length(); ++i) {
-                                      std::cout<<"\b";
-                                  }
-                                  m_printer(toReturn);
-                                  for(int i = 0;i<remCursorPos; ++i) {
-                                      handleLeftArrow(cursorPos);
-                                  }
                               }
+                          }
+                          auto remCursorPos = toReturn.length() - cursorPos;
+                          handleCtrlE(cursorPos, toReturn);
+                          for(int i = 0; i < toReturn.length(); ++i) {
+                              std::cout<<"\b";
+                          }
+                          m_printer(toReturn);
+                          for(int i = 0;i<remCursorPos; ++i) {
+                              handleLeftArrow(cursorPos);
                           }
                       }
                 }
