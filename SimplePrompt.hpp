@@ -126,15 +126,14 @@ namespace simpleprompt {
             // If anything was hacky as fuck, this is surely it.
             std::string str;
             str.push_back(ch);
-            m_printer(str);
+            std::cout<<str;
             if(!toReturn.empty()) {
                 std::string copy(std::begin(toReturn), std::begin(toReturn) + cursorPos);
                 copy.push_back(ch);
                 std::string remaining(std::begin(toReturn) + cursorPos, std::end(toReturn));
-                m_printer(remaining);
-                m_printer(" \b");
+                std::cout<<remaining<<" \b";
                 for(int i = 0; i < remaining.length(); ++i) {
-                    m_printer("\b");
+                    std::cout<<"\b";
                 }
                 copy.append(remaining);
                 copy.swap(toReturn);
@@ -149,9 +148,9 @@ namespace simpleprompt {
             // backspace which only moves cursor, so need to write a blank
             // space over the original char immediately afterwards
             // to emulate having removed it
-            m_printer("\b ");
+            std::cout<<"\b ";
             // now move cursor back again
-            m_printer("\b");
+            std::cout<<"\b";
         }
 
         void handleBackspace(int &cursorPos, std::string &toReturn)
@@ -168,12 +167,11 @@ namespace simpleprompt {
                 copy.swap(toReturn);
 
                 // Remove character from end and 'slide back' string
-                m_printer(remaining);
-                m_printer(" \b");
+                std::cout<<remaining<<" \b";
 
                 // Move cursor back to correct position
                 for(int i = 0; i < remaining.length(); ++i) {
-                    m_printer("\b");
+                    std::cout<<"\b";
                 }
             }
         }
@@ -183,7 +181,7 @@ namespace simpleprompt {
             auto const pos = cursorPos;
             for(int i = 0; i < pos; ++i) {
                  --cursorPos;
-                m_printer("\b");
+                std::cout<<"\b";
             }
         }
 
@@ -194,7 +192,7 @@ namespace simpleprompt {
             for(int i = 0; i < in.length(); ++i) {
                  ++cursorPos;
             }
-            m_printer(in);
+            std::cout<<in;
         }
 
         void handleCtrlK(int &cursorPos, std::string & in)
@@ -204,12 +202,12 @@ namespace simpleprompt {
             // Remove from cursor to end of line
             auto const dist = std::distance(std::begin(in) + cursorPos, std::end(in));
             for(int i = 0; i < dist; ++i) {
-                m_printer(" ");
+                std::cout<<" ";
             }
 
             // Put cursor back
             for(int i = 0; i < dist; ++i) {
-                m_printer("\b");
+                std::cout<<"\b";
             }
             in.swap(copy);
         }
@@ -220,7 +218,7 @@ namespace simpleprompt {
             // deletion of prompt!
             if(cursorPos > 0) {
                 --cursorPos;
-                m_printer("\b");
+                std::cout<<"\b";
             }
         }
 
@@ -231,7 +229,7 @@ namespace simpleprompt {
             if(cursorPos < toReturn.length()) {
                 std::string str;
                 str.push_back(toReturn[cursorPos]);
-                m_printer(str);
+                std::cout<<str;
                 ++cursorPos;
             }
         }
@@ -271,7 +269,7 @@ namespace simpleprompt {
 
             // after effect of pressing tab, need to print out prompt
             // and where we were with toReturn again
-            m_printer(toReturn);
+            std::cout<<toReturn;
         }
 
         /// When up or down cursor is pressed
@@ -292,7 +290,7 @@ namespace simpleprompt {
                         }
                         toReturn = *m_prev;
                         cursorPos = toReturn.length();
-                        m_printer(toReturn);
+                        std::cout<<toReturn;
 
                         // Boundary condition
                         if(m_prev < m_history.rend()-1) {
@@ -313,7 +311,7 @@ namespace simpleprompt {
                         }
                         toReturn = *m_prev;
                         cursorPos = toReturn.length();
-                        m_printer(toReturn);
+                        std::cout<<toReturn;
 
                         // Boundary condition
                         if(m_prev == m_history.rbegin()) {
@@ -392,6 +390,15 @@ namespace simpleprompt {
                               // by pressing ctrl-key
                               if(intCode > 28) {
                                   handleCharInsert(cursorPos, c, toReturn);
+                                  auto remCursorPos = toReturn.length() - cursorPos;
+                                  handleCtrlE(cursorPos, toReturn);
+                                  for(int i = 0; i < toReturn.length(); ++i) {
+                                      std::cout<<"\b";
+                                  }
+                                  m_printer(toReturn);
+                                  for(int i = 0;i<remCursorPos; ++i) {
+                                      handleLeftArrow(cursorPos);
+                                  }
                               }
                           }
                       }
